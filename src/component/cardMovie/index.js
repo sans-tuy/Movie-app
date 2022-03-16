@@ -27,7 +27,9 @@ const CardMovie = props => {
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => RootNavigation.navigate('Detail', {userName: 'Lucy'})}
+          onPress={() =>
+            RootNavigation.navigate('Detail', {IdUser: props.idMovie})
+          }
           style={styles.button}>
           <Text style={styles.textButton}>Show More</Text>
         </TouchableOpacity>

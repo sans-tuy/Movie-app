@@ -46,7 +46,7 @@ const Home = ({onDetail}) => {
               deskripsi={data.overview}
               date={data.release_date}
               rating={data.vote_average}
-              // onDetail={onDetail}
+              idMovie={data.id}
               key={data.id}
             />
           ))}

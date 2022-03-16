@@ -4,7 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Home, Detail, OnSplash} from '../../pages';
 import {navigationRef} from '../RootNavigation';
 
-function HomeScreen({navigation}) {
+function HomeScreen() {
   return <Home />;
 }
 
@@ -13,8 +13,8 @@ function OnSplashScreen() {
 }
 
 function DetailScreen({route}) {
-  const {username} = route.params;
-  return <Detail id={username} />;
+  const {IdUser} = route.params;
+  return <Detail idUser={IdUser} />;
 }
 
 const Stack = createNativeStackNavigator();
