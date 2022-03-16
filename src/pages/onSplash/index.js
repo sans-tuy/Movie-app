@@ -1,8 +1,12 @@
 import {StyleSheet, Text, View, Image} from 'react-native';
-import React from 'react';
-import {popcorn} from '../../assets';
+import React, {useEffect} from 'react';
+import * as RootNavigation from '../../config/RootNavigation';
 
 const OnSplash = () => {
+  useEffect(() => {
+    setTimeout(() => RootNavigation.navigate('Home'), 3000);
+  });
+
   return (
     <View style={styles.container}>
       <View style={{alignItems: 'center', flex: 1}}>

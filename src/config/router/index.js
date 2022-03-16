@@ -22,7 +22,7 @@ const Stack = createNativeStackNavigator();
 function Routing() {
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="OnSplash">
         <Stack.Screen
           name="Home"
           component={HomeScreen}

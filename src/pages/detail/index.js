@@ -9,22 +9,39 @@ import {
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import * as RootNavigation from '../../config/RootNavigation';
+import Share from 'react-native-share';
 import CardArtist from '../../component/cardArtist';
-import BackIcon from '../../assets/icon/back.svg';
-import LoveIcon from '../../assets/icon/Heart.svg';
-import ShareIcon from '../../assets/icon/Send.svg';
-
 const Detail = props => {
-  const [data, setdata] = useState();
-  const [idMovie, setidMovie] = useState(props.idUser);
+  const [Data, setData] = useState(props.idUser);
+  const [result, setResult] = useState('');
 
-  useEffect(() => {
-    fetch('http://code.aldipee.com/api/v1/movies')
-      .then(res => res.json())
-      .then(resJson => resJson.results)
-      .then(res => res.filter(el => (el.id == idMovie ? setdata(el) : null)))
-      .catch(err => console.log(err));
-  });
+  function getErrorString(error, defaultValue) {
+    let e = defaultValue || 'Something went wrong. Please try again';
+    if (typeof error === 'string') {
+      e = error;
+    } else if (error && error.message) {
+      e = error.message;
+    } else if (error && error.props) {
+      e = error.props;
+    }
+    return e;
+  }
+
+  const shareSingleImage = async () => {
+    const shareOptions = {
+      title: 'Share url',
+      url: 'link url : ' + Data.poster_path,
+      failOnCancel: false,
+    };
+
+    try {
+      const ShareResponse = await Share.open(shareOptions);
+      setResult(JSON.stringify(ShareResponse, null, 2));
+    } catch (error) {
+      console.log('Error =>', error);
+      setResult('error: '.concat(getErrorString(error)));
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -32,34 +49,47 @@ const Detail = props => {
         <ImageBackground
           style={styles.imageBackground}
           source={{
-            uri: 'https://image.tmdb.org/t/p/w500/iQFcwSGbZXMkeyKrxbPnwnRo5fl.jpg',
+            uri: Data.backdrop_path,
           }}>
           <View style={styles.navigation}>
             <TouchableOpacity
-              style={{backgroundColor: 'white'}}
               onPress={() => RootNavigation.navigateHome('Home')}>
-              <BackIcon width={27} height={27} />
+              <Image
+                style={{width: 30, height: 30}}
+                source={require('../../assets/icon/back-button.png')}
+              />
             </TouchableOpacity>
             <View style={{flexDirection: 'row'}}>
-              <View style={{backgroundColor: 'white', marginRight: 8}}>
-                <LoveIcon width={27} height={27} />
-              </View>
-              <View style={{backgroundColor: 'white'}}>
-                <ShareIcon width={27} height={27} />
-              </View>
+              <Image
+                style={{width: 30, height: 30}}
+                source={require('../../assets/icon/love.png')}
+              />
+              <TouchableOpacity onPress={shareSingleImage}>
+                <Image
+                  style={{width: 30, height: 30}}
+                  source={require('../../assets/icon/sharing.png')}
+                />
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.card}>
             <Image
               style={styles.cardImage}
               source={{
-                uri: 'https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg',
+                uri: Data.poster_path,
               }}
             />
             <View>
-              <Text>{console.log(data.title)} </Text>
-              <Text>Tagline</Text>
-              <Text>Release Date</Text>
+              <Text style={{fontWeight: 'bold'}}>Title </Text>
+              <Text style={{maxWidth: '75%'}}> {Data.title} </Text>
+              <Text style={{fontWeight: 'bold', paddingTop: 5}}>
+                Vote Count
+              </Text>
+              <Text> {Data.vote_count}</Text>
+              <Text style={{fontWeight: 'bold', paddingTop: 5}}>
+                Date Release
+              </Text>
+              <Text> {Data.release_date} </Text>
             </View>
           </View>
         </ImageBackground>
@@ -80,10 +110,7 @@ const Detail = props => {
         <View style={{marginHorizontal: 10}}>
           <Text style={styles.subtitle}>Sinopsis</Text>
           <Text style={{color: 'white', marginBottom: 16}}>
-            "Peter Parker is unmasked and no longer able to separate his normal
-            life from the high-stakes of being a super-hero. When he asks for
-            help from Doctor Strange the stakes become even more dangerous,
-            forcing him to discover what it truly means to be Spider-Man."
+            {Data.overview}
           </Text>
           <Text style={styles.subtitle}>Actor/Artist</Text>
         </View>
@@ -114,16 +141,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'row',
     height: '70%',
-    width: '80%',
-    padding: '4%',
+    width: '85%',
+    padding: '2%',
     position: 'absolute',
     bottom: -85,
-    left: '10%',
+    left: '8%',
   },
   cardImage: {
     width: '50%',
     height: '100%',
-    marginRight: '5%',
+    marginRight: '2%',
   },
   genres: {
     flexDirection: 'row',
