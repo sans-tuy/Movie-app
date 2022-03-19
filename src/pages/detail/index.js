@@ -11,9 +11,49 @@ import React, {useState, useEffect} from 'react';
 import * as RootNavigation from '../../config/RootNavigation';
 import Share from 'react-native-share';
 import CardArtist from '../../component/cardArtist';
+import {useNetInfo} from '@react-native-community/netinfo';
+import axios from 'axios';
+import {showMessage} from 'react-native-flash-message';
+import Genres from '../../component/genres';
+
 const Detail = props => {
-  const [Data, setData] = useState(props.idUser);
+  const [Data, setData] = useState([]);
+  const [actor, setactor] = useState([]);
+  const [genres, setgenres] = useState([]);
   const [result, setResult] = useState('');
+  const netInfo = useNetInfo();
+  const [loading, setLoading] = useState(true);
+
+  const checkInternet = () =>
+    netInfo.isConnected !== true
+      ? showMessage({
+          message: 'please connect your internet',
+          type: 'connection error',
+          backgroundColor: 'red',
+          color: 'white',
+        })
+      : null;
+
+  useEffect(() => {
+    checkInternet();
+    axios
+      .get(`http://code.aldipee.com/api/v1/movies/${props.idUser}`)
+      .then(res => [
+        setData(res.data),
+        setactor(res.data.credits.cast),
+        setgenres(res.data.genres),
+      ])
+      .then(() => setLoading(false))
+      .catch(err =>
+        showMessage({
+          message: 'cannot connect to server',
+          type: 'server error',
+          backgroundColor: 'red',
+          color: 'white',
+        }),
+      );
+  }),
+    [];
 
   function getErrorString(error, defaultValue) {
     let e = defaultValue || 'Something went wrong. Please try again';
@@ -96,15 +136,9 @@ const Detail = props => {
         <View style={{marginHorizontal: 10, marginTop: 85}}>
           <Text style={styles.subtitle}>Genres</Text>
           <View style={styles.genres}>
-            <View style={styles.genre}>
-              <Text style={styles.genreText}>Action</Text>
-            </View>
-            <View style={styles.genre}>
-              <Text style={styles.genreText}>Scifi</Text>
-            </View>
-            <View style={styles.genre}>
-              <Text style={styles.genreText}>Adventure</Text>
-            </View>
+            {genres.map((genre, index) => (
+              <Genres key={index} genre={genre.name} />
+            ))}
           </View>
         </View>
         <View style={{marginHorizontal: 10}}>
@@ -115,11 +149,14 @@ const Detail = props => {
           <Text style={styles.subtitle}>Actor/Artist</Text>
         </View>
         <View style={styles.scroll}>
-          <CardArtist />
-          <CardArtist />
-          <CardArtist />
-          <CardArtist />
-          <CardArtist />
+          {actor.map((data, index) => (
+            <CardArtist
+              key={index}
+              profil={data.profile_path}
+              originalName={data.original_name}
+              charName={data.character}
+            />
+          ))}
         </View>
       </ScrollView>
     </View>
@@ -152,20 +189,7 @@ const styles = StyleSheet.create({
     height: '100%',
     marginRight: '2%',
   },
-  genres: {
-    flexDirection: 'row',
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  genre: {
-    backgroundColor: 'grey',
-    marginRight: '4%',
-    padding: '1%',
-    borderRadius: 5,
-  },
-  genreText: {
-    color: 'white',
-  },
+
   subtitle: {
     fontWeight: 'bold',
     fontSize: 20,
@@ -196,5 +220,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     marginBottom: 10,
+  },
+  genres: {
+    flexDirection: 'row',
+    marginTop: 8,
+    marginBottom: 16,
   },
 });

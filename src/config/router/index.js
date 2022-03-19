@@ -3,9 +3,27 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Home, Detail, OnSplash} from '../../pages';
 import {navigationRef} from '../RootNavigation';
+import {ScrollView, RefreshControl} from 'react-native';
+
+const wait = timeout => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+};
 
 function HomeScreen() {
-  return <Home />;
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(1000).then(() => setRefreshing(false));
+  }, []);
+  return (
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
+      <Home />
+    </ScrollView>
+  );
 }
 
 function OnSplashScreen() {
@@ -13,8 +31,22 @@ function OnSplashScreen() {
 }
 
 function DetailScreen({route}) {
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(1000).then(() => setRefreshing(false));
+  }, []);
   const {IdUser} = route.params;
-  return <Detail idUser={IdUser} />;
+
+  return (
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
+      <Detail idUser={IdUser} />
+    </ScrollView>
+  );
 }
 
 const Stack = createNativeStackNavigator();

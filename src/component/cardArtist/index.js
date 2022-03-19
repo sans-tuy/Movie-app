@@ -9,11 +9,12 @@ const CardArtist = props => {
         <Image
           style={styles.image}
           source={{
-            uri: 'https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg',
+            uri: props.profil,
           }}
         />
       </View>
-      <Text style={styles.text}>Anwar Sanusi</Text>
+      <Text style={styles.text}>{props.originalName}</Text>
+      <Text style={styles.text}>{props.charName}</Text>
     </View>
   );
 };
@@ -41,5 +42,6 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     textAlign: 'center',
+    width: 105,
   },
 });

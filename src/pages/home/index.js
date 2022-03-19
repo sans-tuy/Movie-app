@@ -12,6 +12,7 @@ import CardImage from '../../component/cardImage';
 import CardMovie from '../../component/cardMovie';
 import {useNetInfo} from '@react-native-community/netinfo';
 import axios from 'axios';
+import {showMessage} from 'react-native-flash-message';
 
 const Home = ({onDetail}) => {
   const netInfo = useNetInfo();
@@ -19,22 +20,36 @@ const Home = ({onDetail}) => {
   const [loading, setLoading] = useState(true);
   const checkInternet = () =>
     netInfo.isConnected !== true
-      ? alert('You are not connect to internet')
+      ? showMessage({
+          message: 'please connect your internet',
+          type: 'connection error',
+          backgroundColor: 'red', // background color
+          color: 'white',
+        })
       : null;
 
   useEffect(() => {
+    checkInternet();
     axios
       .get('http://code.aldipee.com/api/v1/movies')
       .then(res => res.data)
       .then(resJson => setData(resJson.results))
       .then(() => setLoading(false))
-      .catch(err => console.log(err));
-  });
+      .catch(err =>
+        showMessage({
+          message: 'cannot connect to server',
+          type: 'server error',
+          backgroundColor: 'red',
+          color: 'white',
+        }),
+      );
+  }),
+    [];
 
   return (
     <View style={styles.container}>
       <SkeletonContent
-        containerStyle={{flex: 1, width: 300}}
+        containerStyle={{flex: 1, width: '100%'}}
         isLoading={loading}
         boneColor="#121212"
         highlightColor="#333333"
@@ -56,12 +71,18 @@ const Home = ({onDetail}) => {
                 height: 120,
                 marginBottom: 10,
               },
+              {
+                width: 160,
+                height: 120,
+                marginBottom: 10,
+              },
             ],
           },
           {width: 220, height: 20, marginBottom: 6},
           {width: '100%', height: 180, marginBottom: 6},
           {width: '100%', height: 180, marginBottom: 6},
-          // ...
+          {width: '100%', height: 180, marginBottom: 6},
+          {width: '100%', height: 180, marginBottom: 6},
         ]}
         animationType="pulse">
         <View style={{marginTop: 8}}>
@@ -79,7 +100,7 @@ const Home = ({onDetail}) => {
                 <TouchableOpacity
                   key={index}
                   onPress={() =>
-                    RootNavigation.navigate('Detail', {IdUser: data})
+                    RootNavigation.navigate('Detail', {IdUser: data.id})
                   }>
                   <CardImage link={data.poster_path} />
                 </TouchableOpacity>
@@ -97,20 +118,17 @@ const Home = ({onDetail}) => {
             }}>
             Latest Upload
           </Text>
-          <ScrollView>
-            {Data.map((data, index) => (
-              <CardMovie
-                title={data.original_title}
-                link={data.poster_path}
-                deskripsi={data.overview}
-                date={data.release_date}
-                rating={data.vote_average}
-                idMovie={data.id}
-                data={data}
-                key={data.id}
-              />
-            ))}
-          </ScrollView>
+          {Data.map((data, index) => (
+            <CardMovie
+              title={data.original_title}
+              link={data.poster_path}
+              deskripsi={data.overview}
+              date={data.release_date}
+              rating={data.vote_average}
+              idMovie={data.id}
+              key={data.id}
+            />
+          ))}
         </View>
       </SkeletonContent>
     </View>
