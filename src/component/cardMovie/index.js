@@ -1,23 +1,51 @@
 import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import * as RootNavigation from '../../config/RootNavigation';
+import axios from 'axios';
 
 const CardMovie = props => {
-  const limit = (string, max) => {
-    return string.substring(0, max);
+  const [Data, setData] = useState([]);
+
+  const getApi = async () => {
+    try {
+      const post = await axios.get(
+        `http://code.aldipee.com/api/v1/movies/${props.idMovie}`,
+      );
+      setData(post.data.genres);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    getApi();
+  }, []);
   return (
     <View style={styles.card}>
       <View style={styles.imageWrapper}>
         <Image style={styles.image} source={{uri: props.link}} />
       </View>
       <View style={styles.right}>
-        <Text style={{fontWeight: 'bold', color: '#50d71e', fontSize: 17}}>
-          {limit(props.title, 25)}{' '}
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={{fontWeight: 'bold', color: '#50d71e', fontSize: 17}}>
+          {props.title}
         </Text>
-        <Text style={styles.desc}>{limit(props.deskripsi, 60)}</Text>
         <View style={styles.detail}>
           <Text style={styles.desc}>{props.date}</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+            }}>
+            {Data.map((data, index) => (
+              <Text style={styles.genre} key={index}>
+                {data.name}
+              </Text>
+            ))}
+          </View>
+
           <View style={styles.rating}>
             <Image
               style={styles.star}
@@ -45,7 +73,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#334155',
     width: '100%',
-    height: 150,
+    height: 180,
     marginBottom: 10,
     borderRadius: 10,
     elevation: 10,
@@ -88,10 +116,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
   },
-  detail: {
-    // flexDirection: 'row',
-    // justifyContent: 'space-between',
-  },
   star: {
     width: 10,
     height: 10,
@@ -100,5 +124,14 @@ const styles = StyleSheet.create({
   rating: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  genre: {
+    padding: 4,
+    borderColor: 'white',
+    borderWidth: 1,
+    color: 'white',
+    borderRadius: 4,
+    marginRight: 8,
+    marginVertical: 6,
   },
 });

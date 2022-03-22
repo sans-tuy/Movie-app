@@ -1,6 +1,5 @@
 import {StyleSheet, Text, View, Image} from 'react-native';
 import React from 'react';
-import CardImage from '../cardImage';
 
 const CardArtist = props => {
   return (
@@ -13,7 +12,7 @@ const CardArtist = props => {
           }}
         />
       </View>
-      <Text style={styles.text}>{props.originalName}</Text>
+      <Text style={styles.textActor}>{props.originalName}</Text>
       <Text style={styles.text}>{props.charName}</Text>
     </View>
   );
@@ -43,5 +42,11 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     width: 105,
+  },
+  textActor: {
+    color: 'white',
+    textAlign: 'center',
+    width: 105,
+    fontSize: 18,
   },
 });

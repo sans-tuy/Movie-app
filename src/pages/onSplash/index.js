@@ -1,23 +1,33 @@
 import {StyleSheet, Text, View, Image} from 'react-native';
 import React, {useEffect} from 'react';
-import * as RootNavigation from '../../config/RootNavigation';
 
-const OnSplash = () => {
+const OnSplash = ({navigation}) => {
   useEffect(() => {
-    setTimeout(() => RootNavigation.navigate('Home'), 3000);
-  });
+    setTimeout(() => navigation.replace('MainApp'), 3000);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <View style={{alignItems: 'center', flex: 1}}>
+      <View style={{alignItems: 'center', flex: 1, justifyContent: 'center'}}>
         <View style={styles.logoWrapper}>
           <Image
-            source={require('../../assets/icon/popcorn.gif')}
+            source={require('../../assets/icon/iconApp.png')}
             style={styles.logo}
           />
         </View>
-        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 23}}>
-          Movie Watch
+        <Text
+          style={{color: 'rgb(14,165,233)', fontWeight: 'bold', fontSize: 26}}>
+          BajakIn
+        </Text>
+        <Text
+          style={{
+            color: 'white',
+            fontSize: 18,
+            maxWidth: '60%',
+            textAlign: 'center',
+            marginTop: 10,
+          }}>
+          Nonton Film favoritmu secara gratis{' '}
         </Text>
       </View>
       <View style={styles.owner}>
@@ -31,17 +41,19 @@ export default OnSplash;
 
 const styles = StyleSheet.create({
   logo: {
-    width: '100%',
+    width: undefined,
+    height: undefined,
+    flex: 1,
     resizeMode: 'contain',
   },
   logoWrapper: {
-    width: '80%',
-    height: '80%',
+    width: '50%',
+    height: '30%',
     justifyContent: 'flex-start',
   },
   owner: {
     alignItems: 'center',
     marginBottom: 10,
   },
-  container: {flex: 1, backgroundColor: 'rgba(255, 153, 153, 255)'},
+  container: {flex: 1, backgroundColor: '#1f2933'},
 });

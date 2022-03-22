@@ -6,6 +6,7 @@ import {
   ImageBackground,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import * as RootNavigation from '../../config/RootNavigation';
@@ -15,6 +16,7 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import axios from 'axios';
 import {showMessage} from 'react-native-flash-message';
 import Genres from '../../component/genres';
+import Star from '../../component/star';
 
 const Detail = props => {
   const [Data, setData] = useState([]);
@@ -34,26 +36,29 @@ const Detail = props => {
         })
       : null;
 
+  const getApi = async () => {
+    try {
+      const post = await axios.get(
+        `http://code.aldipee.com/api/v1/movies/${props.idUser}`,
+      );
+      setData(post.data);
+      setactor(post.data.credits.cast);
+      setgenres(post.data.genres);
+      setLoading(false);
+    } catch (err) {
+      showMessage({
+        message: 'cannot connect to server',
+        type: 'server error',
+        backgroundColor: 'red',
+        color: 'white',
+      });
+    }
+  };
+
   useEffect(() => {
     checkInternet();
-    axios
-      .get(`http://code.aldipee.com/api/v1/movies/${props.idUser}`)
-      .then(res => [
-        setData(res.data),
-        setactor(res.data.credits.cast),
-        setgenres(res.data.genres),
-      ])
-      .then(() => setLoading(false))
-      .catch(err =>
-        showMessage({
-          message: 'cannot connect to server',
-          type: 'server error',
-          backgroundColor: 'red',
-          color: 'white',
-        }),
-      );
-  }),
-    [];
+    getApi();
+  }, []);
 
   function getErrorString(error, defaultValue) {
     let e = defaultValue || 'Something went wrong. Please try again';
@@ -67,10 +72,10 @@ const Detail = props => {
     return e;
   }
 
-  const shareSingleImage = async () => {
+  const shareMovie = async () => {
     const shareOptions = {
       title: 'Share url',
-      url: 'link url : ' + Data.poster_path,
+      url: 'link url : ' + Data.homepage,
       failOnCancel: false,
     };
 
@@ -85,80 +90,108 @@ const Detail = props => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <ImageBackground
-          style={styles.imageBackground}
-          source={{
-            uri: Data.backdrop_path,
-          }}>
-          <View style={styles.navigation}>
-            <TouchableOpacity
-              onPress={() => RootNavigation.navigateHome('Home')}>
-              <Image
-                style={{width: 30, height: 30}}
-                source={require('../../assets/icon/back-button.png')}
-              />
-            </TouchableOpacity>
-            <View style={{flexDirection: 'row'}}>
-              <Image
-                style={{width: 30, height: 30}}
-                source={require('../../assets/icon/love.png')}
-              />
-              <TouchableOpacity onPress={shareSingleImage}>
+      {loading && (
+        <ActivityIndicator
+          size="large"
+          style={{AlignItems: 'center', height: 900}}
+        />
+      )}
+
+      {!loading && (
+        <ScrollView>
+          <ImageBackground
+            style={styles.imageBackground}
+            source={{
+              uri: Data.backdrop_path,
+            }}>
+            <View style={styles.navigation}>
+              <TouchableOpacity
+                onPress={() => RootNavigation.navigateHome('Home')}>
                 <Image
                   style={{width: 30, height: 30}}
-                  source={require('../../assets/icon/sharing.png')}
+                  source={require('../../assets/icon/back-button.png')}
                 />
               </TouchableOpacity>
+              <View style={{flexDirection: 'row'}}>
+                <Image
+                  style={{width: 30, height: 30}}
+                  source={require('../../assets/icon/love.png')}
+                />
+                <TouchableOpacity onPress={shareMovie}>
+                  <Image
+                    style={{width: 30, height: 30}}
+                    source={require('../../assets/icon/sharing.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.card}>
+              <Image
+                style={styles.cardImage}
+                source={{
+                  uri: Data.poster_path,
+                }}
+              />
+              <View style={{width: '60%'}}>
+                <Text style={styles.title}> {Data.title} </Text>
+                <View style={{marginBottom: '2%'}}>
+                  <Text style={styles.text}> {Data.tagline} </Text>
+                </View>
+                <View style={styles.rightCard}>
+                  <Text style={{color: '#50d71e', fontWeight: 'bold'}}>
+                    Vote
+                  </Text>
+                  <Text style={styles.text}> {Data.vote_average} / 10</Text>
+                </View>
+                <View style={styles.rightCard}>
+                  <Text style={{color: '#50d71e', fontWeight: 'bold'}}>
+                    Length
+                  </Text>
+                  <Text style={styles.text}> {Data.runtime} hrs </Text>
+                </View>
+                <View style={styles.rightCard}>
+                  <Text style={{color: '#50d71e', fontWeight: 'bold'}}>
+                    Release date
+                  </Text>
+                  <Text style={styles.text}> {Data.release_date} </Text>
+                </View>
+                <View style={styles.rightCard}>
+                  <Text style={{color: '#50d71e', fontWeight: 'bold'}}>
+                    Status
+                  </Text>
+                  <Text style={styles.text}> {Data.status}</Text>
+                </View>
+                <Star />
+              </View>
+            </View>
+          </ImageBackground>
+          <View style={{marginHorizontal: 10, marginTop: 85}}>
+            <Text style={styles.subtitle}>Genres</Text>
+            <View style={styles.genres}>
+              {genres.map((genre, index) => (
+                <Genres key={index} genre={genre.name} />
+              ))}
             </View>
           </View>
-          <View style={styles.card}>
-            <Image
-              style={styles.cardImage}
-              source={{
-                uri: Data.poster_path,
-              }}
-            />
-            <View>
-              <Text style={{fontWeight: 'bold'}}>Title </Text>
-              <Text style={{maxWidth: '75%'}}> {Data.title} </Text>
-              <Text style={{fontWeight: 'bold', paddingTop: 5}}>
-                Vote Count
-              </Text>
-              <Text> {Data.vote_count}</Text>
-              <Text style={{fontWeight: 'bold', paddingTop: 5}}>
-                Date Release
-              </Text>
-              <Text> {Data.release_date} </Text>
-            </View>
+          <View style={{marginHorizontal: 10}}>
+            <Text style={styles.subtitle}>Sinopsis</Text>
+            <Text style={{color: 'white', marginBottom: 16}}>
+              {Data.overview}
+            </Text>
+            <Text style={styles.subtitle}>Actor/Artist</Text>
           </View>
-        </ImageBackground>
-        <View style={{marginHorizontal: 10, marginTop: 85}}>
-          <Text style={styles.subtitle}>Genres</Text>
-          <View style={styles.genres}>
-            {genres.map((genre, index) => (
-              <Genres key={index} genre={genre.name} />
+          <View style={styles.scroll}>
+            {actor.map((data, index) => (
+              <CardArtist
+                key={index}
+                profil={data.profile_path}
+                originalName={data.original_name}
+                charName={data.character}
+              />
             ))}
           </View>
-        </View>
-        <View style={{marginHorizontal: 10}}>
-          <Text style={styles.subtitle}>Sinopsis</Text>
-          <Text style={{color: 'white', marginBottom: 16}}>
-            {Data.overview}
-          </Text>
-          <Text style={styles.subtitle}>Actor/Artist</Text>
-        </View>
-        <View style={styles.scroll}>
-          {actor.map((data, index) => (
-            <CardArtist
-              key={index}
-              profil={data.profile_path}
-              originalName={data.original_name}
-              charName={data.character}
-            />
-          ))}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -175,17 +208,20 @@ const styles = StyleSheet.create({
     height: '30%',
   },
   card: {
-    backgroundColor: 'white',
     flexDirection: 'row',
-    height: '70%',
-    width: '85%',
+    width: '94%',
     padding: '2%',
     position: 'absolute',
     bottom: -85,
-    left: '8%',
+    left: '3%',
+    backgroundColor: '#334155',
+    elevation: 20,
+    shadowColor: '#94a3b8',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   cardImage: {
-    width: '50%',
+    width: '38%',
     height: '100%',
     marginRight: '2%',
   },
@@ -225,5 +261,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 8,
     marginBottom: 16,
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 17,
+    maxWidth: '85%',
+    color: 'rgb(14,165,233)',
+  },
+  text: {
+    color: 'white',
+  },
+  rightCard: {
+    flexDirection: 'row',
+    width: '100%',
+    // backgroundColor: 'blue',
+    justifyContent: 'space-between',
+  },
+  star: {
+    width: 20,
+    height: 20,
   },
 });

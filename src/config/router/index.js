@@ -26,8 +26,8 @@ function HomeScreen() {
   );
 }
 
-function OnSplashScreen() {
-  return <OnSplash />;
+function OnSplashScreen({navigation}) {
+  return <OnSplash navigation={navigation} />;
 }
 
 function DetailScreen({route}) {
@@ -51,18 +51,30 @@ function DetailScreen({route}) {
 
 const Stack = createNativeStackNavigator();
 
+function MainApp() {
+  return (
+    <Stack.Navigator initialRouteName="Home">
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Detail"
+        component={DetailScreen}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function Routing() {
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="OnSplash">
         <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Detail"
-          component={DetailScreen}
+          name="MainApp"
+          component={MainApp}
           options={{headerShown: false}}
         />
         <Stack.Screen

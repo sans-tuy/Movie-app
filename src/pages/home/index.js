@@ -14,7 +14,7 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import axios from 'axios';
 import {showMessage} from 'react-native-flash-message';
 
-const Home = ({onDetail}) => {
+const Home = () => {
   const netInfo = useNetInfo();
   const [Data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,28 +23,30 @@ const Home = ({onDetail}) => {
       ? showMessage({
           message: 'please connect your internet',
           type: 'connection error',
-          backgroundColor: 'red', // background color
+          backgroundColor: 'red',
           color: 'white',
         })
       : null;
 
+  const getApi = async () => {
+    try {
+      const post = await axios.get('http://code.aldipee.com/api/v1/movies');
+      setData(post.data.results);
+      setLoading(false);
+    } catch (error) {
+      showMessage({
+        message: 'cannot connect to server',
+        type: 'server error',
+        backgroundColor: 'red',
+        color: 'white',
+      });
+    }
+  };
+
   useEffect(() => {
     checkInternet();
-    axios
-      .get('http://code.aldipee.com/api/v1/movies')
-      .then(res => res.data)
-      .then(resJson => setData(resJson.results))
-      .then(() => setLoading(false))
-      .catch(err =>
-        showMessage({
-          message: 'cannot connect to server',
-          type: 'server error',
-          backgroundColor: 'red',
-          color: 'white',
-        }),
-      );
-  }),
-    [];
+    getApi();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -70,6 +72,7 @@ const Home = ({onDetail}) => {
                 width: 160,
                 height: 120,
                 marginBottom: 10,
+                marginRight: 20,
               },
               {
                 width: 160,
@@ -122,7 +125,6 @@ const Home = ({onDetail}) => {
             <CardMovie
               title={data.original_title}
               link={data.poster_path}
-              deskripsi={data.overview}
               date={data.release_date}
               rating={data.vote_average}
               idMovie={data.id}
